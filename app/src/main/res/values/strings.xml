@@ -3,4 +3,8 @@
     <string name="title_news">news</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="txt_open_link">Open link</string>
+    <string name="cd_news_image">News image.</string>
+    <string name="cd_favorite_icon">Favorite icon.</string>
+    <string name="cd_share_icon">Share icon.</string>
 </resources>
