@@ -8,8 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.util.List;
+
+import pet.brood.soccernews.MainActivity;
 import pet.brood.soccernews.databinding.FragmentFavoritesBinding;
+import pet.brood.soccernews.domain.News;
+import pet.brood.soccernews.ui.adapters.NewsAdapter;
 
 public class FavoritesFragment extends Fragment {
 
@@ -18,11 +24,22 @@ public class FavoritesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         FavoritesViewModel favoritesViewModel = new ViewModelProvider(this).get(FavoritesViewModel.class);
 
-        binding = FragmentFavoritesBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+        binding = FragmentFavoritesBinding.inflate(inflater,container,false);
 
-        favoritesViewModel.getText().observe(getViewLifecycleOwner(), binding.textFavorites::setText);
-        return root;
+        loadFavoriteNews();
+
+        return binding.getRoot();
+    }
+    private void loadFavoriteNews(){
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity != null) {
+            List<News> favoriteNews = activity.getDb().newsDao().loadFavoriteNews();
+            binding.rvNews.setLayoutManager(new LinearLayoutManager(getContext()));
+            binding.rvNews.setAdapter(new NewsAdapter(favoriteNews, updatedNews -> {
+                activity.getDb().newsDao().save(updatedNews);
+                loadFavoriteNews();
+            }));
+        }
     }
 
     @Override
