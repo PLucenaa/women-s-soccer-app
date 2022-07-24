@@ -2,13 +2,9 @@ package pet.brood.soccernews.domain;
 
 public class News {
     private String title;
-    private String Description;
-
-
-    public News(String title, String description) {
-        this.title = title;
-        Description = description;
-    }
+    private String description;
+    private String image;
+    private String link;
 
     public String getTitle() {
         return title;
@@ -19,10 +15,26 @@ public class News {
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
     public void setDescription(String description) {
-        Description = description;
+        this.description = description;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
