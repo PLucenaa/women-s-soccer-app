@@ -10,15 +10,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import pet.brood.soccernews.MainActivity;
-import pet.brood.soccernews.data.local.SoccerNewsDb;
+import com.google.android.material.snackbar.Snackbar;
+
+import pet.brood.soccernews.R;
 import pet.brood.soccernews.databinding.FragmentNewsBinding;
+import pet.brood.soccernews.domain.News;
 import pet.brood.soccernews.ui.adapters.NewsAdapter;
 
 public class NewsFragment extends Fragment {
 
     private FragmentNewsBinding binding;
-    private SoccerNewsDb db;
     private NewsViewModel newsViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -29,29 +30,35 @@ public class NewsFragment extends Fragment {
         View root = binding.getRoot();
 
         binding.rvNews.setLayoutManager(new LinearLayoutManager(getContext()));
-        newsViewModel.getNews().observe(getViewLifecycleOwner(), news -> {
-            binding.rvNews.setAdapter(new NewsAdapter(news, updatedNews -> {
-                MainActivity activity = (MainActivity) getActivity();
-                if (activity != null) {
-                    activity.getDb().newsDao().save(updatedNews);
-                }
-            }));
-        });
-        newsViewModel.getState().observe(getViewLifecycleOwner(), state -> {
-            switch (state){
-                case DOING:
-                    //TODO: Iniciar SwipeRefreshLayout (loading)
-                    break;
-                case DONE:
-                    //TODO: Finalizar SwipeRefreshLayout (loading)
-                    break;
-                    //TODO: Finalizar SwipeRefreshLayout (loading)
-                    //TODO: Mostrar um erro
-                case ERROR:
-            }
-        });
+        observeNews();
+
+        observeStates();
+
+        binding.srlNews.setOnRefreshListener(newsViewModel::findNews);
 
         return root;
+    }
+
+    private void observeStates() {
+        newsViewModel.getState().observe(getViewLifecycleOwner(), state -> {
+            switch (state) {
+                case DOING:
+                    binding.srlNews.setRefreshing(true);
+                    break;
+                case DONE:
+                    binding.srlNews.setRefreshing(false);
+                    break;
+                case ERROR:
+                    binding.srlNews.setRefreshing(false);
+                    Snackbar.make(binding.srlNews, R.string.error_network, Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void observeNews() {
+        newsViewModel.getNews().observe(getViewLifecycleOwner(), news -> {
+            binding.rvNews.setAdapter(new NewsAdapter(news, newsViewModel::saveNews));
+        });
     }
 
     @Override
@@ -60,4 +67,11 @@ public class NewsFragment extends Fragment {
         binding = null;
     }
 
+    private void onFavorite(News updatedNews) {
+        newsViewModel.saveNews(updatedNews);
+    }
+
+    private void onFavorite2(News favoriteNews) {
+        newsViewModel.saveNews(favoriteNews);
+    }
 }
